@@ -8,8 +8,8 @@ import {
   JoinColumn,
   Unique,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity.js';
-import { Organization } from './organization.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
+import type { Organization } from './organization.entity.js';
 
 export enum MembershipRole {
   ADMIN = 'admin',
@@ -39,13 +39,13 @@ export class Membership {
   @Column({ default: true })
   isActive: boolean;
 
-  @ManyToOne(() => User, (user) => user.memberships, { onDelete: 'CASCADE' })
+  @ManyToOne('User', (user: User) => user.memberships, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
   @ManyToOne(
-    () => Organization,
-    (organization) => organization.memberships,
+    'Organization',
+    (organization: Organization) => organization.memberships,
     { onDelete: 'CASCADE' },
   )
   @JoinColumn({ name: 'organizationId' })

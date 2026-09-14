@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
 
 @Entity('sessions')
 export class Session {
@@ -22,10 +22,10 @@ export class Session {
   @Column({ length: 500 })
   refreshToken: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   userAgent: string | null;
 
-  @Column({ length: 45, nullable: true }) // IPv6 max length
+  @Column({ type: 'varchar', length: 45, nullable: true }) // IPv6 max length
   ipAddress: string | null;
 
   @Column({ default: true })
@@ -37,7 +37,7 @@ export class Session {
   @Column({ type: 'timestamp', nullable: true })
   lastActivityAt: Date | null;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 

@@ -7,7 +7,7 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { Permission } from './permission.entity.js';
+import type { Permission } from './permission.entity.js';
 
 @Entity('roles')
 export class Role {
@@ -17,13 +17,13 @@ export class Role {
   @Column({ length: 100, unique: true })
   name: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   description: string | null;
 
   @Column({ default: true })
   isSystem: boolean; // System roles cannot be deleted
 
-  @ManyToMany(() => Permission, (permission) => permission.roles, {
+  @ManyToMany('Permission', (permission: Permission) => permission.roles, {
     eager: true,
   })
   @JoinTable({

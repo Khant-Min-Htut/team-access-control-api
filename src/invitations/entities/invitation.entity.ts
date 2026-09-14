@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Organization } from '../../organizations/entities/organization.entity.js';
+import type { Organization } from '../../organizations/entities/organization.entity.js';
 import { MembershipRole } from '../../organizations/entities/membership.entity.js';
 
 export enum InvitationStatus {
@@ -51,7 +51,7 @@ export class Invitation {
   @Column({ type: 'timestamp', nullable: true })
   acceptedAt: Date | null;
 
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @ManyToOne('Organization', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizationId' })
   organization: Organization;
 

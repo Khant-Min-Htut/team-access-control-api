@@ -10,6 +10,6 @@ import { AuditLogModule } from '../audit-log/audit-log.module.js';
   imports: [TypeOrmModule.forFeature([User]), AuditLogModule],
   controllers: [UsersController],
   providers: [UsersRepository, UsersService],
-  exports: [UsersService],
+  exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

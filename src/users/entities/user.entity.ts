@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Membership } from '../../organizations/entities/membership.entity.js';
+import type { Membership } from '../../organizations/entities/membership.entity.js';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -34,13 +34,13 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ nullable: true, select: false })
+  @Column({ type: 'varchar', length: 500, nullable: true, select: false })
   refreshToken: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   lastLoginAt: Date | null;
 
-  @OneToMany(() => Membership, (membership) => membership.user)
+  @OneToMany('Membership', (membership: Membership) => membership.user)
   memberships: Membership[];
 
   @CreateDateColumn()

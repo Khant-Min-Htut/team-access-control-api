@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Membership } from './membership.entity.js';
+import type { Membership } from './membership.entity.js';
 
 @Entity('organizations')
 export class Organization {
@@ -19,13 +19,13 @@ export class Organization {
   @Column({ length: 255, unique: true })
   slug: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ type: 'varchar', length: 1000, nullable: true })
   description: string | null;
 
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToMany(() => Membership, (membership) => membership.organization)
+  @OneToMany('Membership', (membership: Membership) => membership.organization)
   memberships: Membership[];
 
   @CreateDateColumn()

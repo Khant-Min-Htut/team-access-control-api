@@ -8,7 +8,7 @@ import {
   Index,
   BeforeInsert,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
 
 export enum AuditAction {
   // Organization actions
@@ -56,13 +56,13 @@ export class AuditLog {
   @Column({ type: 'jsonb', default: () => "'{}'" })
   metadata: Record<string, unknown>;
 
-  @Column({ length: 45, nullable: true })
+  @Column({ type: 'varchar', length: 45, nullable: true })
   ipAddress: string | null;
 
-  @Column({ length: 500, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   userAgent: string | null;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'userId' })
   user: User;
 

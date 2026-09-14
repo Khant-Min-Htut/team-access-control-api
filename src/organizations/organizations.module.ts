@@ -11,6 +11,6 @@ import { AuditLogModule } from '../audit-log/audit-log.module.js';
   imports: [TypeOrmModule.forFeature([Organization, Membership]), AuditLogModule],
   controllers: [OrganizationsController],
   providers: [OrganizationsRepository, OrganizationsService],
-  exports: [OrganizationsService],
+  exports: [OrganizationsService, OrganizationsRepository],
 })
 export class OrganizationsModule {}

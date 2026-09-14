@@ -13,6 +13,7 @@ import { InvitationsModule } from './invitations/invitations.module.js';
 import { SessionsModule } from './sessions/sessions.module.js';
 import { CommonModule } from './common/common.module.js';
 import { AuditLogModule } from './audit-log/audit-log.module.js';
+import { PassportModule } from '@nestjs/passport';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard.js';
 import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
 import { appConfig, databaseConfig, redisConfig } from './config/index.js';
@@ -38,6 +39,7 @@ import { appConfig, databaseConfig, redisConfig } from './config/index.js';
     }),
     HealthModule,
     UsersModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     AuthModule,
     OrganizationsModule,
     RbacModule,

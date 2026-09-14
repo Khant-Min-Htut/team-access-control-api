@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
 } from 'typeorm';
-import { Role } from './role.entity.js';
+import type { Role } from './role.entity.js';
 
 @Entity('permissions')
 export class Permission {
@@ -16,7 +16,7 @@ export class Permission {
   @Column({ length: 100, unique: true })
   name: string; // e.g., 'users:create', 'organizations:delete'
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   description: string | null;
 
   @Column({ length: 50 })
@@ -25,7 +25,7 @@ export class Permission {
   @Column({ length: 50 })
   action: string; // e.g., 'create', 'read', 'update', 'delete'
 
-  @ManyToMany(() => Role, (role) => role.permissions)
+  @ManyToMany('Role', (role: Role) => role.permissions)
   roles: Role[];
 
   @CreateDateColumn()
