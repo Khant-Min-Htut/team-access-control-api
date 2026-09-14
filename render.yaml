@@ -10,7 +10,7 @@ services:
     plan: free
     buildCommand: "npm install && npx @nestjs/cli build"
     startCommand: node dist/main
-    healthCheckPath: /health
+    healthCheckPath: /health/live
     envVars:
       - key: NODE_ENV
         value: production
