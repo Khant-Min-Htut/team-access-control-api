@@ -4,9 +4,9 @@ import { registerAs } from '@nestjs/config';
 function parseRedisUrl(url: string): { host: string; port: number; password?: string; db: number } | null {
   try {
     // Handle rediss:// or redis:// URLs
-    const match = url.match(/^(rediss?://)(?:([^:@]+):?([^@]*)@)?([^:]+):(\d+)(?:/(\d+))?$/);
+    const match = url.match(/^(rediss?:\/\/)(?:([^:@]+):?([^@]*)@)?([^:]+):(\d+)(?:\/(\d+))?$/);
     if (!match) return null;
-    
+
     const [, , username, password, host, port, db] = match;
     return {
       host,
@@ -27,7 +27,7 @@ export default registerAs('redis', () => {
       return parsed;
     }
   }
-  
+
   // Fallback to individual env vars
   return {
     host: process.env.REDIS_HOST || 'localhost',
