@@ -8,7 +8,7 @@ services:
     name: team-access-control-api
     runtime: node
     plan: free
-    buildCommand: npm install && npx nest build
+    buildCommand: "npm install && npx @nestjs/cli build"
     startCommand: node dist/main
     healthCheckPath: /health
     envVars:
