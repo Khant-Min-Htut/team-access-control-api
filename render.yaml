@@ -1,4 +1,10 @@
 services:
+  - type: pgsql
+    name: team-access-control-db
+    plan: free
+    databaseName: team_access_control
+    user: team_access_control
+
   - type: redis
     name: team-access-control-redis
     plan: free
@@ -19,7 +25,9 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: team-access-control-db
+          property: connectionString
       - key: REDIS_URL
         sync: false
       - key: JWT_ACCESS_SECRET
