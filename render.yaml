@@ -21,17 +21,11 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: REDIS_HOST
-        fromDatabase:
-          name: team-access-control-redis
-          property: host
+        sync: false
       - key: REDIS_PORT
-        fromDatabase:
-          name: team-access-control-redis
-          property: port
+        value: 6379
       - key: REDIS_PASSWORD
-        fromDatabase:
-          name: team-access-control-redis
-          property: password
+        sync: false
       - key: REDIS_DB
         value: 0
       - key: JWT_ACCESS_SECRET
