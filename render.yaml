@@ -20,14 +20,8 @@ services:
         value: 10000
       - key: DATABASE_URL
         sync: false
-      - key: REDIS_HOST
+      - key: REDIS_URL
         sync: false
-      - key: REDIS_PORT
-        value: 6379
-      - key: REDIS_PASSWORD
-        sync: false
-      - key: REDIS_DB
-        value: 0
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
