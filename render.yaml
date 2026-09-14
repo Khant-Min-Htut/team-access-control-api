@@ -1,4 +1,9 @@
 services:
+  - type: redis
+    name: team-access-control-redis
+    plan: free
+    ipAllowList: []
+
   - type: web
     name: team-access-control-api
     runtime: node
@@ -39,8 +44,3 @@ services:
         value: 7d
       - key: SESSION_MAX_PER_USER
         value: 5
-
-  - type: redis
-    name: team-access-control-redis
-    plan: free
-    ipAllowList: []
