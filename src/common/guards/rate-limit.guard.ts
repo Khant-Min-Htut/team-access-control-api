@@ -77,17 +77,9 @@ export class RateLimitGuard implements CanActivate {
 
     // Increment count
     const newCount = count + 1;
-    if (count === 0) {
-      // First request, set with TTL
-      await this.redisService.set(
-        key,
-        newCount.toString(),
-        Math.ceil(rateLimitOptions.windowMs / 1000),
-      );
-    } else {
-      // Increment existing key
-      await this.redisService.set(key, newCount.toString());
-    }
+    // Always set with TTL to ensure the window resets properly
+    const ttlSeconds = Math.ceil(rateLimitOptions.windowMs / 1000);
+    await this.redisService.set(key, newCount.toString(), ttlSeconds);
 
     // Set rate limit headers
     response.setHeader('X-RateLimit-Limit', rateLimitOptions.maxRequests.toString());
@@ -99,7 +91,12 @@ export class RateLimitGuard implements CanActivate {
 
   private generateKey(request: Request, options: RateLimitOptions): string {
     const prefix = options.keyPrefix || 'ratelimit';
-    const ip = request.ip || request.socket.remoteAddress || 'unknown';
+    // Use x-forwarded-for for proxied requests, fallback to connection remoteAddress
+    const forwarded = request.headers['x-forwarded-for'];
+    const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0]?.trim()
+      || request.ip
+      || request.socket.remoteAddress
+      || 'unknown';
     const userId = (request.user as any)?.id || '';
 
     // Use IP for unauthenticated, userId for authenticated

@@ -17,6 +17,9 @@ async function bootstrap() {
     }),
   );
 
+  // Trust proxy (needed for correct IP resolution behind reverse proxies)
+  app.getHttpAdapter().getInstance().set('trust proxy', true);
+
   // Enable CORS if needed
   app.enableCors();
 
