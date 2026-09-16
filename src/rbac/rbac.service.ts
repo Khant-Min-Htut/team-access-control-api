@@ -34,7 +34,7 @@ export class RbacService implements OnModuleInit {
       console.log('Default permissions seeded');
     }
 
-    // Seed roles
+    // Seed or update roles
     const existingRoles = await this.rbacRepository.findAllRoles();
     if (existingRoles.length === 0) {
       for (const roleData of Object.values(DEFAULT_ROLES)) {
@@ -49,6 +49,23 @@ export class RbacService implements OnModuleInit {
         );
       }
       console.log('Default roles seeded');
+    } else {
+      // Update existing system roles to match default configuration
+      await this.syncSystemRoles();
+    }
+  }
+
+  private async syncSystemRoles(): Promise<void> {
+    for (const roleData of Object.values(DEFAULT_ROLES)) {
+      const existingRole = await this.rbacRepository.findRoleByName(roleData.name);
+      if (existingRole && existingRole.isSystem) {
+        // Update permissions to match default configuration
+        await this.rbacRepository.assignPermissionsToRole(
+          existingRole.id,
+          [...roleData.permissions],
+        );
+        console.log(`Updated system role: ${roleData.name}`);
+      }
     }
   }
 
