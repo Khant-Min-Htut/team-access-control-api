@@ -158,10 +158,15 @@ export class RbacService implements OnModuleInit {
     user: User,
     permissionName: PermissionName,
   ): Promise<boolean> {
-    // Get user's role
-    const role = await this.rbacRepository.findRoleByName(user.role);
+    // Get user's RBAC role from relationship
+    const role = user.rbacRole;
     if (!role) {
-      return false;
+      // Fallback: try to find role by user.role string for backward compatibility
+      const fallbackRole = await this.rbacRepository.findRoleByName(user.role);
+      if (!fallbackRole) {
+        return false;
+      }
+      return fallbackRole.permissions.some((p) => p.name === permissionName);
     }
 
     // Check if role has the permission
@@ -172,9 +177,16 @@ export class RbacService implements OnModuleInit {
     user: User,
     permissionNames: PermissionName[],
   ): Promise<boolean> {
-    const role = await this.rbacRepository.findRoleByName(user.role);
+    const role = user.rbacRole;
     if (!role) {
-      return false;
+      // Fallback: try to find role by user.role string for backward compatibility
+      const fallbackRole = await this.rbacRepository.findRoleByName(user.role);
+      if (!fallbackRole) {
+        return false;
+      }
+      return permissionNames.some((name) =>
+        fallbackRole.permissions.some((p) => p.name === name),
+      );
     }
 
     return permissionNames.some((name) =>
@@ -186,9 +198,16 @@ export class RbacService implements OnModuleInit {
     user: User,
     permissionNames: PermissionName[],
   ): Promise<boolean> {
-    const role = await this.rbacRepository.findRoleByName(user.role);
+    const role = user.rbacRole;
     if (!role) {
-      return false;
+      // Fallback: try to find role by user.role string for backward compatibility
+      const fallbackRole = await this.rbacRepository.findRoleByName(user.role);
+      if (!fallbackRole) {
+        return false;
+      }
+      return permissionNames.every((name) =>
+        fallbackRole.permissions.some((p) => p.name === name),
+      );
     }
 
     return permissionNames.every((name) =>
@@ -197,9 +216,14 @@ export class RbacService implements OnModuleInit {
   }
 
   async getUserPermissions(user: User): Promise<string[]> {
-    const role = await this.rbacRepository.findRoleByName(user.role);
+    const role = user.rbacRole;
     if (!role) {
-      return [];
+      // Fallback: try to find role by user.role string for backward compatibility
+      const fallbackRole = await this.rbacRepository.findRoleByName(user.role);
+      if (!fallbackRole) {
+        return [];
+      }
+      return fallbackRole.permissions.map((p) => p.name);
     }
     return role.permissions.map((p) => p.name);
   }

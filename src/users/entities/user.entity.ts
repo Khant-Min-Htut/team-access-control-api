@@ -5,8 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import type { Membership } from '../../organizations/entities/membership.entity.js';
+import type { Role } from '../../rbac/entities/role.entity.js';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -39,6 +42,13 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   lastLoginAt: Date | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  rbacRoleId: string | null;
+
+  @ManyToOne('Role', (role: Role) => role.users, { eager: true, nullable: true })
+  @JoinColumn({ name: 'rbacRoleId' })
+  rbacRole: Role | null;
 
   @OneToMany('Membership', (membership: Membership) => membership.user)
   memberships: Membership[];

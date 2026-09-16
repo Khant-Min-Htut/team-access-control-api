@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity.js';
+import { Role } from '../rbac/entities/role.entity.js';
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectRepository(User)
     private readonly repository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -46,12 +49,39 @@ export class UsersRepository {
   }
 
   async create(data: Partial<User>): Promise<User> {
-    const user = this.repository.create(data);
+    // Find corresponding RBAC role based on user role
+    const rbacRole = await this.roleRepository.findOne({
+      where: { name: data.role || 'member' },
+    });
+
+    const user = this.repository.create({
+      ...data,
+      rbacRoleId: rbacRole?.id || null,
+    });
     return this.repository.save(user);
   }
 
-  async update(id: string, data: Partial<User>): Promise<User | null> {
-    await this.repository.update(id, data);
+  async update(id: string, data: Partial<User> & { rbacRoleId?: string }): Promise<User | null> {
+    // If role is being updated, also update RBAC role
+    if (data.role) {
+      const rbacRole = await this.roleRepository.findOne({
+        where: { name: data.role },
+      });
+      const { role, ...otherData } = data;
+      await this.repository.update(id, { 
+        ...otherData, 
+        rbacRoleId: rbacRole?.id || null 
+      });
+    } else if (data.rbacRoleId !== undefined) {
+      // Direct RBAC role ID update (for migration)
+      const { rbacRoleId, ...otherData } = data;
+      await this.repository.update(id, { 
+        ...otherData, 
+        rbacRoleId 
+      });
+    } else {
+      await this.repository.update(id, data);
+    }
     return this.findById(id);
   }
 

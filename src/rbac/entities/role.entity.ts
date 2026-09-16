@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import type { Permission } from './permission.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
 
 @Entity('roles')
 export class Role {
@@ -32,6 +34,9 @@ export class Role {
     inverseJoinColumn: { name: 'permissionId', referencedColumnName: 'id' },
   })
   permissions: Permission[];
+
+  @OneToMany('User', (user: User) => user.rbacRole)
+  users: User[];
 
   @CreateDateColumn()
   createdAt: Date;
