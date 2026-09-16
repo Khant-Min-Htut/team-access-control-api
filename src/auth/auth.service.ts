@@ -55,6 +55,7 @@ export class AuthService {
       email: signupDto.email,
       name: signupDto.name,
       password: hashedPassword,
+      role: signupDto.role,
     });
 
     // Generate tokens
