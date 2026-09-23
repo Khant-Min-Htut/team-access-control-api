@@ -38,7 +38,6 @@ export class AuthService {
     userAgent?: string,
     ipAddress?: string,
   ): Promise<TokenDto> {
-    // Check if email already exists
     const existingUser = await this.usersRepository.findByEmail(
       signupDto.email,
     );
@@ -46,11 +45,9 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(signupDto.password, salt);
 
-    // Create user
     const user = await this.usersRepository.create({
       email: signupDto.email,
       name: signupDto.name,
@@ -58,10 +55,8 @@ export class AuthService {
       role: signupDto.role,
     });
 
-    // Generate tokens
     const tokens = await this.generateTokens(user);
 
-    // Create session
     await this.sessionsService.createSession(
       user.id,
       tokens.refreshToken,
@@ -78,17 +73,13 @@ export class AuthService {
     userAgent?: string,
     ipAddress?: string,
   ): Promise<TokenDto> {
-    // Check if account is locked
-    const isBlocked = await this.loginAttemptService.isBlocked(
-      loginDto.email,
-    );
+    const isBlocked = await this.loginAttemptService.isBlocked(loginDto.email);
     if (isBlocked) {
       throw new BadRequestException(
         'Account temporarily locked due to too many failed attempts. Please try again later.',
       );
     }
 
-    // Get required delay for progressive throttling
     const requiredDelay = await this.loginAttemptService.getRequiredDelay(
       loginDto.email,
     );
@@ -98,10 +89,8 @@ export class AuthService {
 
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      // Record failed attempt
       await this.loginAttemptService.recordAttempt(loginDto.email, false);
 
-      // Get remaining attempts for error message
       const remainingAttempts =
         await this.loginAttemptService.getRemainingAttempts(loginDto.email);
 
@@ -112,16 +101,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Record successful attempt (clears the counter)
     await this.loginAttemptService.recordAttempt(loginDto.email, true);
 
-    // Update last login
     await this.usersRepository.update(user.id, { lastLoginAt: new Date() });
 
-    // Generate tokens
     const tokens = await this.generateTokens(user);
 
-    // Create session
     await this.sessionsService.createSession(
       user.id,
       tokens.refreshToken,
@@ -133,10 +118,7 @@ export class AuthService {
     return plainToInstance(TokenDto, tokens);
   }
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<User | null> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findByEmailWithPassword(email);
     if (!user) {
       return null;
@@ -147,7 +129,6 @@ export class AuthService {
       return null;
     }
 
-    // Don't return password
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword as User;
   }
@@ -159,7 +140,6 @@ export class AuthService {
   ): Promise<TokenDto> {
     const tokens = await this.generateTokens(user);
 
-    // Update session with new refresh token
     if (sessionId && currentRefreshToken) {
       await this.sessionsService.updateSessionToken(
         sessionId,
@@ -179,17 +159,14 @@ export class AuthService {
       await this.sessionsService.logout(sessionId, userId);
     }
 
-    // Blacklist the current access token
     if (accessToken) {
       await this.tokenBlacklistService.blacklistToken(accessToken, 'logout');
     }
   }
 
   async logoutAll(userId: string): Promise<void> {
-    // Blacklist all tokens for this user
     await this.tokenBlacklistService.blacklistAllUserTokens(userId);
 
-    // Deactivate all sessions
     await this.sessionsService.logoutAll(userId);
 
     this.logger.log(`User ${userId} logged out from all devices`);
@@ -204,10 +181,22 @@ export class AuthService {
       role: user.role,
     };
 
-    const accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET', 'default-access-secret');
-    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET', 'default-refresh-secret');
-    const accessExpiration = this.configService.get<string>('JWT_ACCESS_EXPIRATION', '15m');
-    const refreshExpiration = this.configService.get<string>('JWT_REFRESH_EXPIRATION', '7d');
+    const accessSecret = this.configService.get<string>(
+      'JWT_ACCESS_SECRET',
+      'default-access-secret',
+    );
+    const refreshSecret = this.configService.get<string>(
+      'JWT_REFRESH_SECRET',
+      'default-refresh-secret',
+    );
+    const accessExpiration = this.configService.get<string>(
+      'JWT_ACCESS_EXPIRATION',
+      '15m',
+    );
+    const refreshExpiration = this.configService.get<string>(
+      'JWT_REFRESH_EXPIRATION',
+      '7d',
+    );
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {

@@ -55,7 +55,6 @@ export class UsersService {
       role: createUserDto.role || UserRole.MEMBER,
     });
 
-    // Audit log
     await this.auditLogService.log({
       action: AuditAction.USER_CREATED,
       entityType: 'User',
@@ -92,7 +91,6 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // Audit log
     await this.auditLogService.log({
       action: AuditAction.USER_UPDATED,
       entityType: 'User',
@@ -111,7 +109,6 @@ export class UsersService {
 
     await this.usersRepository.remove(id);
 
-    // Audit log
     await this.auditLogService.log({
       action: AuditAction.USER_DELETED,
       entityType: 'User',

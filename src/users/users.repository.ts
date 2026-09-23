@@ -61,23 +61,24 @@ export class UsersRepository {
     return this.repository.save(user);
   }
 
-  async update(id: string, data: Partial<User> & { rbacRoleId?: string }): Promise<User | null> {
-    // If role is being updated, also update RBAC role
+  async update(
+    id: string,
+    data: Partial<User> & { rbacRoleId?: string },
+  ): Promise<User | null> {
     if (data.role) {
       const rbacRole = await this.roleRepository.findOne({
         where: { name: data.role },
       });
       const { role, ...otherData } = data;
-      await this.repository.update(id, { 
-        ...otherData, 
-        rbacRoleId: rbacRole?.id || null 
+      await this.repository.update(id, {
+        ...otherData,
+        rbacRoleId: rbacRole?.id || null,
       });
     } else if (data.rbacRoleId !== undefined) {
-      // Direct RBAC role ID update (for migration)
       const { rbacRoleId, ...otherData } = data;
-      await this.repository.update(id, { 
-        ...otherData, 
-        rbacRoleId 
+      await this.repository.update(id, {
+        ...otherData,
+        rbacRoleId,
       });
     } else {
       await this.repository.update(id, data);
