@@ -18,7 +18,7 @@ export const RateLimit = (options: RateLimitOptions) =>
 export const LoginRateLimit = () =>
   RateLimit({
     windowMs: 15 * 60 * 1000,
-    maxRequests: 15,
+    maxRequests: 50,
     message: 'Too many login attempts, please try again later',
     keyPrefix: 'login',
     blockDuration: 15 * 60, // Block for 15 minutes
